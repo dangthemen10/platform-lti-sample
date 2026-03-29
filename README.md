@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Education Hub — LTI 1.3 Platform
 
-## Getting Started
+## Vai trò đúng trong kiến trúc LTI 1.3
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+Education Hub (ta build)        = Platform / LMS
+      ↓ đăng ký 1 lần
+Microsoft LTI Gateway           = Broker / OIDC Provider trung gian
+      ↓ route đến
+Microsoft 365 Tools             = LTI Tools (OneDrive, Teams, SharePoint...)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Education Hub là **Platform chủ động** — user đăng nhập vào đây,
+rồi từ đây mở các tool Microsoft thông qua LTI 1.3.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Cấu trúc thư mục
 
-## Learn More
+```
+education-hub/
+├── app/
+│   ├── api/
+│   │   ├── lti/
+│   │   │   ├── launch/route.js    # Platform khởi động LTI launch
+│   │   │   ├── callback/route.js  # Nhận JWT từ MS Gateway
+│   │   │   ├── keys/route.js      # JWKS Public Key của Platform
+│   │   │   └── tools/route.js     # Danh sách tool có sẵn
+│   │   └── auth/session/route.js  # Session management
+│   ├── dashboard/page.jsx         # Dashboard chính
+│   └── ...
+├── lib/
+│   ├── mongodb.js                 # Connection caching
+│   ├── crypto.js                  # RSA key + JWT
+│   ├── lti-utils.js               # LTI helpers
+│   └── session.js                 # Session helpers
+├── models/
+│   ├── LtiRegistration.js         # Config MS Tools
+│   ├── LtiNonce.js                # Nonce/State bảo mật
+│   └── User.js                    # User của Education Hub
+└── ...
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## So sánh code cũ vs code mới
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| | Code cũ (SAI) | Code mới (ĐÚNG) |
+|---|---|---|
+| Vai trò EH | Tool bị động | Platform chủ động |
+| `/api/lti/login` | Chờ MS gọi vào | Không còn — đổi thành `/launch` |
+| `/api/lti/launch` | Nhận id_token từ MS | Khởi động OIDC request gửi sang MS |
+| `/api/lti/callback` | Không có | Nhận id_token từ MS Gateway gửi về |
+| `LtiRegistrations` | Lưu config của MS (để verify MS gọi ta) | Lưu config MS Tools (ta gọi MS) |
+| Sau verify JWT | Vào Dashboard của ta | Redirect đến URL tool Microsoft |
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## URL đăng ký trên MS LTI Gateway Admin Portal
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Khi đăng ký Education Hub làm **Platform** trên Gateway:
+
+| Trường | Giá trị |
+|--------|---------|
+| Platform Login URL | `https://your-app.vercel.app/api/lti/launch` |
+| Platform Redirect URL | `https://your-app.vercel.app/api/lti/callback` |
+| Platform Keyset URL | `https://your-app.vercel.app/api/lti/keys` |

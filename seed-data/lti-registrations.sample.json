@@ -1,0 +1,34 @@
+[
+    {
+        "name": "OneDrive LTI",
+        "toolType": "onedrive",
+        "clientId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "_clientId_note": "Client ID do Microsoft LTI Gateway cấp cho Education Hub khi đăng ký tích hợp OneDrive Tool",
+        "issuer": "https://lti.microsoft.com",
+        "_issuer_note": "Identity của Microsoft LTI Gateway — không phải Teams hay Azure AD",
+        "authorizationEndpoint": "https://lti.microsoft.com/api/oidc/authorize",
+        "_authorizationEndpoint_note": "Education Hub redirect user đến đây để bắt đầu LTI launch",
+        "jwksUri": "https://lti.microsoft.com/.well-known/jwks.json",
+        "_jwksUri_note": "Public key của Gateway — ta dùng để verify JWT mà Gateway gửi về",
+        "accessTokenUrl": "https://lti.microsoft.com/api/ltiv13/token",
+        "_accessTokenUrl_note": "Dùng cho LTI Advantage Services (Names & Roles, Grades)",
+        "targetLinkUri": "https://onedrive.live.com/picker",
+        "_targetLinkUri_note": "URL của OneDrive Tool — Gateway sẽ mở tool này sau khi xác thực",
+        "deploymentId": "1",
+        "_deploymentId_note": "Deployment ID do Gateway cấp, gắn với Platform registration",
+        "isActive": true
+    },
+    {
+        "name": "Teams Assignments LTI",
+        "toolType": "teams",
+        "clientId": "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy",
+        "issuer": "https://lti.microsoft.com",
+        "authorizationEndpoint": "https://lti.microsoft.com/api/oidc/authorize",
+        "jwksUri": "https://lti.microsoft.com/.well-known/jwks.json",
+        "accessTokenUrl": "https://lti.microsoft.com/api/ltiv13/token",
+        "targetLinkUri": "https://teams.microsoft.com/l/entity/...",
+        "_targetLinkUri_note": "URL deep link vào Teams Assignments",
+        "deploymentId": "1",
+        "isActive": true
+    }
+]
